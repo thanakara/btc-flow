@@ -1,0 +1,50 @@
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  console-simple:
+    format: "[%(levelname)s @%(name)s]:\n%(message)s"
+  file-simple:
+    format: "%(asctime)s - %(name)s - [%(levelname)s]: %(message)s"
+  error-simple:
+    format: "stderr:\n[%(levelname)s %(asctime)s %(filename)s:%(lineno)d]"
+
+handlers:
+  stdout:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: console-simple
+    stream: ext://sys.stdout
+    filters:
+      - max_level_filter # blocks ERROR+ from stdout
+
+  file:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: file-simple
+    filename: src/logs/DEBUG.log
+    mode: a
+    filters:
+
+  stderr:
+    class: logging.StreamHandler
+    level: ERROR
+    formatter: error-simple
+    stream: ext://sys.stderr
+
+filters:
+  max_level_filter:
+    (): btc_flow.core.tools.MaxLevelFilter
+    max_level: 30 # WARNING - passes INFO+WARNING, blocks ERROR+
+
+loggers:
+  btc_flow:
+    level: DEBUG
+    propagate: yes
+
+root:
+  level: DEBUG
+  handlers:
+    - stdout
+    # - file
+    - stderr

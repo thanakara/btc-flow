@@ -1,0 +1,9 @@
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+
+defaults:
+  - override hydra/job_logging: custom-logging
+  - override hydra/hydra_logging: disabled
+  # - override hydra/callbacks: custom-callback

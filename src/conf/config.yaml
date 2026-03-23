@@ -1,0 +1,8 @@
+defaults:
+  - hydra-settings
+  - _self_
+
+project:
+  author: thanakara
+  repo: btcflow
+  docker-io: ${.author}/${.repo}
