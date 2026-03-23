@@ -10,8 +10,9 @@ def main(cfg: DictConfig):
     log = logging.getLogger(__name__)
     OmegaConf.resolve(cfg)
 
-    log.debug("__on_main_begin__")
-    log.info(OmegaConf.to_yaml(cfg))
+    log.debug("__on_main_start__")
+    cfg_yaml = OmegaConf.to_yaml(cfg)
+    log.info("⸺⸺⸺⸺  REPRO ⸺⸺⸺⸺\n%s", cfg_yaml)
     log.debug("__on_main_end__")
 
 

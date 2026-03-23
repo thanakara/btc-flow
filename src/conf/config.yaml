@@ -1,8 +1,20 @@
 defaults:
   - hydra-settings
+  - db: csv
   - _self_
 
-project:
-  author: thanakara
-  repo: btcflow
-  docker-io: ${.author}/${.repo}
+api:
+  base_url: "https://mempool.space/api"
+  timeout: 10
+
+dag:
+  id: "mempool_etl"
+  schedule: "*/5 * * * *"
+  catchup: false
+  max_active_runs: 1
+  tags:
+    - bitcoin
+    - mempool
+    - etl
+  retries: 3
+  retry_delay_seconds: 60

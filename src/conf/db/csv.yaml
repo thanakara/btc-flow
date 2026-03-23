@@ -1,0 +1,2 @@
+type: csv
+path: "${oc.env:AIRFLOW_HOME,.}/data/mempool.csv"
