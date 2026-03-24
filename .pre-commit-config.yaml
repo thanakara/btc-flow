@@ -1,0 +1,30 @@
+# ⸻ [project.name] pre-commit install --install-hooks ⸻
+# installs both hook types and pre-downloads the environments in oneshot:
+# https://github.com/compilerla/conventional-pre-commit/blob/main/README.md
+default_install_hook_types:
+  - pre-commit
+  - commit-msg
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: e05c5c0818279e5ac248ac9e954431ba58865e61 # v0.15.7
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+        types_or: [python, pyi, pyproject]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: 91ab4bf57e58b32adf1a122681f6ebe164d081c8 # v4.4.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        # --strict: Force commit to strictly follow Conventional Commits formatting. Disallows fixup!
+        args:
+          [--strict, feat, fix, chore, docs, refactor, test, ci, build, revert]

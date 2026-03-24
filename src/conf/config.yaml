@@ -9,7 +9,7 @@ api:
 
 dag:
   id: "mempool_etl"
-  schedule: "*/5 * * * *"
+  schedule: "*/1 * * * *"
   catchup: false
   max_active_runs: 1
   tags:

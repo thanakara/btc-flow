@@ -1,0 +1,7 @@
+type: postgres
+host: "${oc.env:BTCFLOW_POSTGRES_HOST,localhost}"
+port: 5432
+database: "${oc.env:BTCFLOW_POSTGRES_DB,airflow}"
+user: "${oc.env:BTCFLOW_POSTGRES_USER,airflow}"
+password: "${oc.env:BTCFLOW_POSTGRES_PASSWORD,airflow}"
+table: "mempool_stats"

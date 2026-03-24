@@ -16,7 +16,7 @@ handlers:
     formatter: console-simple
     stream: ext://sys.stdout
     filters:
-      - max_level_filter # blocks ERROR+ from stdout
+      - max_level_filter # Blocks ERROR+ from stdout
 
   file:
     class: logging.FileHandler
