@@ -5,7 +5,7 @@ from btc_flow.core.config import load_cfg
 from btc_flow.etl.extract import extract
 from btc_flow.etl.transform import transform
 
-# TODO: Dynamic switch of db:
+# HACK: Dynamic switch of db:
 # 1. `load_cfg(overrides=["db=postgres"])` OR:
 # 2. Manually change config.yaml && `load_cfg()`
 cfg: DictConfig = load_cfg()

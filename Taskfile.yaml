@@ -10,7 +10,13 @@ tasks:
     cmds:
       - find . -type d -name "__pycache__" | xargs rm -rf 2>/dev/null || true
       - find . -type d -name ".ruff_cache" | xargs rm -rf 2>/dev/null || true
+      - find . -type d -name ".pytest_cache" | xargs rm -rf 2>/dev/null || true
     desc: "Removes cache produced by Python and Ruff."
+
+  test-suite:
+    cmds:
+      - uv run pytest tests/ -x
+    desc: "[TEST]: Run unit/integration tests."
 
   build-airflow-image:
     cmds:

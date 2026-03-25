@@ -1,16 +1,20 @@
-# Python-generated files
-__pycache__/
+# /**⸺ Python-generated files ⸺⸺⸺⸺*/
 *.py[oc]
 build/
 dist/
 wheels/
 *.egg-info
 
-# Virtual environments
+# /**⸺ Virtual enviroments & ENV ⸺⸺⸺*/
 .venv
-
-
 .env
-.ruff_cache
 
+# /**⸺ cache ⸺⸺⸺⸺⸺⸺⸺⸺*/
+__pycache__/
+.ruff_cache/
+.pytest_cache/
+
+
+
+# TODO: dvc[gdrive]
 data/
