@@ -1,6 +1,6 @@
 defaults:
   - hydra-settings
-  - db: csv
+  - db: postgres
   - _self_
 
 api:
