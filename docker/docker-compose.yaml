@@ -4,7 +4,7 @@ x-airflow-common: &airflow-common
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
-    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
     AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: "admin:admin"
     AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS: "true"
     AIRFLOW__CORE__EXECUTION_API_SERVER_URL: "http://airflow-apiserver:8080/execution/"
@@ -20,7 +20,7 @@ x-airflow-common: &airflow-common
     BTCFLOW_POSTGRES_DB: ${POSTGRES_DATA_DB}
   volumes:
     - ../dags:/opt/airflow/dags
-    - ../data:/opt/airflow/data
+    # - ../data:/opt/airflow/data
     # - ../logs:/opt/airflow/logs
   depends_on:
     postgres:
@@ -59,7 +59,20 @@ services:
       test: ["CMD", "pg_isready", "-U", "${POSTGRES_DATA_USER}"]
       interval: 3s
       retries: 3
-
+  # dashboard service for timeseries visulization
+  grafana:
+    image: grafana/grafana:11.4.0 # version must support Postgres plugin
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+    volumes:
+      - grafana_mount:/var/lib/grafana
+    depends_on:
+      postgres-data:
+        condition: service_healthy
+    restart: always
   # separate from x-airflow-common (doesn't get circular `depends_on` itself):
   airflow-init:
     image: ${AIRFLOW_IMAGE}
@@ -92,6 +105,7 @@ services:
 # Adds "docker_" as prefix:
 volumes:
   postgres_mount:
+  grafana_mount:
 
 # [If containers are down]: export .env &&:
 # ⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺
@@ -104,4 +118,4 @@ volumes:
 # && docker exec -it postgres-data \
 # psql -U ${POSTGRES_DATA_USER} -d ${POSTGRES_DATA_DB}
 # ⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺⸺
-# to visualize the transformed data is the mempool_stats table.
+# to query the mempool_stats table.

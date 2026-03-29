@@ -20,8 +20,9 @@ tasks:
 
   build-airflow-image:
     cmds:
-      - docker build --tag {{ .AIRFLOW_IMAGE}} -f docker/Dockerfile .
-    desc: "[DEPENDENCY]: Builds the Airflow image for the compose task."
+      - docker image inspect {{.AIRFLOW_IMAGE}} > /dev/null 2>&1 && echo "Image {{.AIRFLOW_IMAGE}} already exists, skipping." || true
+      - docker image inspect {{.AIRFLOW_IMAGE}} > /dev/null 2>&1 || docker build --tag {{.AIRFLOW_IMAGE}} -f docker/Dockerfile .
+    desc: "[DEPENDENCY]: Builds the Airflow image if it doesn't exist."
 
   compose-up:
     deps: [build-airflow-image]
