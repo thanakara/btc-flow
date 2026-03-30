@@ -1,0 +1,20 @@
+name: Setup Python
+description: Install UV, restore venv cache.
+
+runs:
+  using: composite
+  steps:
+    - name: Install UV
+      uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57 # v8.0.0
+
+    - name: Restore venv cache
+      id: venv-cache
+      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ hashFiles('uv.lock') }}
+
+    - name: Install dependencies
+      if: steps.venv-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: uv sync --frozen

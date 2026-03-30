@@ -1,0 +1,21 @@
+name: call-build
+
+on:
+    pull_request:
+        branches:
+            - main
+    workflow_dispatch:
+        inputs:
+            environment:
+                type: choice
+                required: true
+                options:
+                    - development
+                    - staging
+
+jobs:
+    build:
+        uses: ./.github/workflows/reusable-build.yaml
+        with:
+            environment: ${{ inputs.environment || 'development' }}
+        secrets: inherit
