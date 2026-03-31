@@ -1,8 +1,8 @@
 **/__pycache__
 **/.ruff_cache
-**/.pytest_cahce
+**/.pytest_cache
 **/*.pyc
-../logs/
-../.venv/
-../.env
-../.git
+logs/
+.venv/
+.env
+.git
