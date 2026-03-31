@@ -1,6 +1,4 @@
-# ₿
-> A production-grade Bitcoin mempool ETL pipeline built with Apache Airflow 3.x, Docker, and Grafana.
-
+> A production-grade ETL pipeline built with Apache Airflow 3.x, Docker, and Grafana.
 
 ## Overview
 
