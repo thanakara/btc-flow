@@ -1,4 +1,4 @@
-name: reusable-build
+name: docker-build-reusable
 
 on:
   workflow_call:
@@ -9,51 +9,28 @@ on:
 
 jobs:
   build:
-    name: Build & Push Docker Image
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
-      - name: Validate environment input
+      - name: validate-environment-input
         run: |
           if [ "${{ inputs.environment }}" != "development" ] && [ "${{ inputs.environment }}" != "staging" ]; then
             echo "Invalid environment: ${{ inputs.environment }}. Must be 'development' or 'staging'."
             exit 1
           fi
-          echo "Environment was set to:   ${{ inputs.environment }}"
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # access full git history
 
-      - name: Set image tag
-        id: tag
-        run: |
-          if [ "${{ inputs.environment }}" = "development" ]; then
-            echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          else
-            echo "sha=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 #v4.0.0
+      - uses: supplypike/setup-bin@1fafb085795af4a3f183502f3a9dffa8f7b83217 # v5.0.0
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          uri: "https://github.com/go-task/task/releases/download/v3.49.1/task_linux_amd64.tar.gz"
+          name: task
+          version: v3.49.1
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd #v4.0.0
-
-      - name: Build & Push
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 #v7.0.0
-        with:
-          context: .
-          file: docker/Dockerfile
-          push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/btc-flow:airflow-${{ steps.tag.outputs.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Cleanup
-        if: always()
+      - name: docker-build-with-task
+        working-directory: ./docker
+        # from root-dir-
         run: |
-          docker buildx rm --all-inactive --force || true
+          task build-airflow-image

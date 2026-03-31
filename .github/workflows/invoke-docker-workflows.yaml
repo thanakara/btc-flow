@@ -1,6 +1,9 @@
 name: invoke-docker-workflows
 
 on:
+    push:
+        branches-ignore:
+            - main
     pull_request:
         branches:
             - main
@@ -18,4 +21,12 @@ jobs:
         uses: ./.github/workflows/docker-build-reusable.yaml
         with:
             environment: ${{ inputs.environment || 'development' }}
+
+    push:
+        # skip on-push
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        uses: ./.github/workflows/docker-push-reusable.yaml
+        with:
+            environment: ${{ inputs.environment || 'development'}}
+            # NOTE: reusable-workflow can't pass secrets
         secrets: inherit
