@@ -1,4 +1,4 @@
-name: call-build
+name: invoke-docker-workflows
 
 on:
     pull_request:
@@ -15,7 +15,7 @@ on:
 
 jobs:
     build:
-        uses: ./.github/workflows/reusable-build.yaml
+        uses: ./.github/workflows/docker-build-reusable.yaml
         with:
             environment: ${{ inputs.environment || 'development' }}
         secrets: inherit

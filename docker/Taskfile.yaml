@@ -1,0 +1,27 @@
+version: "3"
+
+tasks:
+  build-airflow-image:
+    desc: "[DEPENDENCY]: Builds the Airflow image if it doesn't exist."
+    cmds:
+      - chmod +x scripts/build-airflow-image
+      - bash scripts/build-airflow-image
+
+  up:
+    desc: "[COMPOSE]   : Starts the Airflow stack."
+    deps: [build-airflow-image]
+    cmds:
+      - chmod +x scripts/compose-up
+      - bash scripts/compose-up
+
+  down:
+    desc: "[COMPOSE]   : Stops the Airflow stack. Volumes kept."
+    cmds:
+      - chmod +x scripts/compose-down
+      - bash scripts/compose-down
+
+  reset:
+    desc: "[COMPOSE]   : Stops the Airflow stack. Volumes lost."
+    cmds:
+      - chmod +x scripts/compose-down-reset
+      - bash scripts/compose-down-reset

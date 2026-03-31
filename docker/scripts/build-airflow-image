@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e
+
+source "scripts/constants"
+
+docker image inspect $AIRFLOW_IMAGE > /dev/null 2>&1 && \
+echo "Image $AIRFLOW_IMAGE already exists - skipping" || true
+docker image inspect $AIRFLOW_IMAGE > /dev/null 2>&1 || \
+docker build --tag $AIRFLOW_IMAGE -f docker/Dockerfile .

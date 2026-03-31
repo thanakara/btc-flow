@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+SHA=$(git rev-parse --short HEAD)
+AIRFLOW_IMAGE="airflow:$SHA"
+ENV_FROM_TASKFILE="../.env"
