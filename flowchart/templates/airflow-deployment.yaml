@@ -1,0 +1,198 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "flowchart.fullname" . }}-airflow-apiserver
+  namespace: {{ .Values.namespace}}
+  labels:
+    {{- include "flowchart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "flowchart.selectorLabels" . | nindent 6 }}
+      component: apiserver
+  template:
+    metadata:
+      labels:
+        {{- include "flowchart.selectorLabels" . | nindent 8 }}
+        component: apiserver
+    spec:
+      containers:
+        - name: airflow-apiserver
+          image: "{{ .Values.airflow.image.repository }}:{{ .Values.airflow.image.tag }}"
+          imagePullPolicy: {{ .Values.airflow.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+              name: web
+          env:
+            - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+              value: postgresql+psycopg2://{{ .Values.airflow.metadata.user}}:{{ .Values.airflow.metadata.password}}@{{ include "flowchart.fullname" .}}-postgres-airflow:5432/{{ .Values.airflow.metadata.db}}
+            - name: AIRFLOW__CORE__FERNET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" .}}-secrets
+                  key: FERNET_KEY
+            - name: AIRFLOW__API__SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" .}}-secrets
+                  key: SECRET_KEY
+            - name: AIRFLOW__API_AUTH__JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" .}}-secrets
+                  key: JWT_SECRET
+            - name: BTCFLOW_POSTGRES_HOST
+              value: {{ include "flowchart.fullname" .}}-postgres-data
+            - name: BTCFLOW_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" .}}-secrets
+                  key: POSTGRES_DATA_USER
+            - name: BTCFLOW_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" .}}-secrets
+                  key: POSTGRES_DATA_PASSWORD
+            - name: BTCFLOW_POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" .}}-secrets
+                  key: POSTGRES_DATA_DB
+          volumeMounts:
+            - name: dags
+              mountPath: /opt/airflow/dags
+      volumes:
+        - name: dags
+          configMap:
+            name: {{ .Values.airflow.dags.configMapName}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "flowchart.fullname" . }}-airflow-scheduler
+  labels:
+    {{- include "flowchart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "flowchart.selectorLabels" . | nindent 6 }}
+      component: scheduler
+  template:
+    metadata:
+      labels:
+        {{- include "flowchart.selectorLabels" . | nindent 8 }}
+        component: scheduler
+    spec:
+      containers:
+        - name: airflow-scheduler
+          image: "{{ .Values.airflow.image.repository }}:{{ .Values.airflow.image.tag }}"
+          imagePullPolicy: {{ .Values.airflow.image.pullPolicy }}
+          env:
+            - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+              value: postgresql+psycopg2://{{ .Values.airflow.metadata.user }}:{{ .Values.airflow.metadata.password }}@{{ include "flowchart.fullname" . }}-postgres-airflow:5432/{{ .Values.airflow.metadata.db }}
+            - name: AIRFLOW__CORE__FERNET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" . }}-secrets
+                  key: FERNET_KEY
+            - name: AIRFLOW__API__SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" . }}-secrets
+                  key: SECRET_KEY
+            - name: AIRFLOW__API_AUTH__JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" . }}-secrets
+                  key: JWT_SECRET
+            - name: BTCFLOW_POSTGRES_HOST
+              value: {{ include "flowchart.fullname" . }}-postgres-data
+            - name: BTCFLOW_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" . }}-secrets
+                  key: POSTGRES_DATA_USER
+            - name: BTCFLOW_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" . }}-secrets
+                  key: POSTGRES_DATA_PASSWORD
+            - name: BTCFLOW_POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" . }}-secrets
+                  key: POSTGRES_DATA_DB
+          volumeMounts:
+            - name: dags
+              mountPath: /opt/airflow/dags
+      volumes:
+        - name: dags
+          configMap:
+            name: {{ .Values.airflow.dags.configMapName}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "flowchart.fullname" . }}-airflow-dag-processor
+  labels:
+    {{- include "flowchart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "flowchart.selectorLabels" . | nindent 6 }}
+      component: dag-processor
+  template:
+    metadata:
+      labels:
+        {{- include "flowchart.selectorLabels" . | nindent 8 }}
+        component: dag-processor
+    spec:
+      containers:
+        - name: airflow-dag-processor
+          image: "{{ .Values.airflow.image.repository }}:{{ .Values.airflow.image.tag }}"
+          imagePullPolicy: {{ .Values.airflow.image.pullPolicy }}
+          env:
+            - name: AIRFLOW__DATABASE__SQL_ALCHEMY_CONN
+              value: postgresql+psycopg2://{{ .Values.airflow.metadata.user }}:{{ .Values.airflow.metadata.password }}@{{ include "flowchart.fullname" . }}-postgres-airflow:5432/{{ .Values.airflow.metadata.db }}
+            - name: AIRFLOW__CORE__FERNET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" . }}-secrets
+                  key: FERNET_KEY
+            - name: AIRFLOW__API__SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" . }}-secrets
+                  key: SECRET_KEY
+            - name: AIRFLOW__API_AUTH__JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" . }}-secrets
+                  key: JWT_SECRET
+            - name: BTCFLOW_POSTGRES_HOST
+              value: {{ include "flowchart.fullname" . }}-postgres-data
+            - name: BTCFLOW_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" . }}-secrets
+                  key: POSTGRES_DATA_USER
+            - name: BTCFLOW_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" . }}-secrets
+                  key: POSTGRES_DATA_PASSWORD
+            - name: BTCFLOW_POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "flowchart.fullname" . }}-secrets
+                  key: POSTGRES_DATA_DB
+          volumeMounts:
+            - name: dags
+              mountPath: /opt/airflow/dags
+      volumes:
+        - name: dags
+          configMap:
+            name: {{ .Values.airflow.dags.configMapName }}

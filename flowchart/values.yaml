@@ -1,0 +1,67 @@
+namespace: flow-domain
+
+airflow:
+  metadata:
+    user: airflow
+    password: airflow
+    db: airflow
+  dags:
+    configMapName: flowchart-dags
+    files:
+      - dags/mempool_etl.py
+  image:
+    repository: thanakara/btc-flow
+    tag: airflow-v0.1.0
+    pullPolicy: IfNotPresent
+  executor: LocalExecutor
+  apiServer:
+    port: 8080
+    serviceType: ClusterIP
+  scheduler:
+    replicas: 1
+  dagProcessor:
+    replicas: 1
+
+postgresAirflow:
+  image:
+    repository: postgres
+    tag: "15-alpine"
+    pullPolicy: IfNotPresent
+  db: airflow
+  user: airflow
+  password: airflow
+  port: 5432
+  persistence:
+    enabled: true
+    size: 1Gi
+
+postgresData:
+  image:
+    repository: postgres
+    tag: "15-alpine"
+    pullPolicy: IfNotPresent
+  port: 5432
+  persistence:
+    enabled: true
+    size: 1Gi
+
+grafana:
+  image:
+    repository: grafana/grafana
+    tag: "11.4.0"
+    pullPolicy: IfNotPresent
+  port: 3000
+  serviceType: ClusterIP
+  persistence:
+    enabled: true
+    size: 1Gi
+
+secrets:
+  fernetKey: ""
+  jwtSecret: ""
+  secretKey: ""
+  postgresDataUser: ""
+  postgresDataPassword: ""
+  postgresDataDb: ""
+  grafanaUser: ""
+  grafanaPassword: ""

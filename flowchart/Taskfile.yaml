@@ -1,0 +1,36 @@
+version: "3"
+
+vars:
+  NAMESPACE: flow-domain
+  CHART_NAME: flowchart
+  RELEASE_NAME: btcflow
+
+tasks:
+  create-namespace:
+    desc: "Create a namespace for the chart"
+    cmds:
+      - kubectl apply -f namespace.yaml
+      - kubens {{ .NAMESPACE}}
+
+  delete-namespace:
+    desc: "Delete namespace and all its resources"
+    cmds:
+      - kubectl delete -f namespace.yaml
+      - kubens default
+
+  lint:
+    cmds:
+      - helm lint .
+
+  render:
+    cmds:
+      - |
+        if [ -z {{ .STEM | default "" }} ]; then
+          helm template .
+        else
+          helm template . --show-only "templates/{{ .STEM | default}}.yaml"
+        fi
+
+  install:
+    cmds:
+      - helm install {{ .RELEASE_NAME}} . --namespace {{ .NAMESPACE}}
