@@ -26,9 +26,9 @@ statsd:
 postgresql:
   enabled: true
 
-fernetKeySecretName: airflow-secrets
-webserverSecretKeySecretName: airflow-secrets
-jwtSecretName: airflow-secrets
+fernetKeySecretName: secrets
+webserverSecretKeySecretName: secrets
+jwtSecretName: secrets
 
 migrateDatabaseJob:
   enabled: true
@@ -62,3 +62,23 @@ dags:
     subPath: dags
     period: 60s
     recommendedProbeSetting: true # false: depricated
+
+# etl-postgres connection for dags: update-chart after
+extraEnv: |
+  - name: BTCFLOW_POSTGRES_HOST
+    value: "pgch-pgsvc.pgns.svc.cluster.local"
+  - name: BTCFLOW_POSTGRES_DB
+    valueFrom:
+      secretKeyRef:
+        name: pg-credentials
+        key: POSTGRES_DB
+  - name: BTCFLOW_POSTGRES_USER
+    valueFrom:
+      secretKeyRef:
+        name: pg-credentials
+        key: POSTGRES_USER
+  - name: BTCFLOW_POSTGRES_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: pg-credentials
+        key: POSTGRES_PASSWORD

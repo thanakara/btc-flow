@@ -1,0 +1,50 @@
+version: "3"
+
+dotenv: ["../../.env"]
+
+vars:
+  NAMESPACE: pgns
+
+tasks:
+  create-namespace:
+    desc: "Create namespace if it doesn't exist."
+    cmds:
+      - kubectl create namespace {{.NAMESPACE}} --dry-run=client -o yaml | kubectl apply -f -
+
+  create-secrets:
+      desc: "Generate secrets.yaml — run once then gitignore."
+      cmds:
+        - |
+          kubectl create secret generic secrets \
+            --namespace {{.NAMESPACE}} \
+            --from-literal=POSTGRES_USER="${POSTGRES_DATA_USER}" \
+            --from-literal=POSTGRES_PASSWORD="${POSTGRES_DATA_PASSWORD}" \
+            --from-literal=POSTGRES_DB="${POSTGRES_DATA_DB}" \
+            --dry-run=client -o yaml > secrets.yaml
+
+  apply-secrets:
+    deps: [create-namespace]
+    desc: "Apply secrets to the cluster."
+    cmds:
+      - kubectl apply -f secrets.yaml
+      # - kubectl apply -f secrets.yaml -namespace {{.NAMESPACE}}
+
+  render:
+    desc: "Render helm templates into './rendered.yaml' for inspection."
+    cmds:
+      - helm template pg . -f values.yaml > rendered.yaml
+
+  install-pg:
+    deps: [apply-secrets]
+    desc: "Install postgresql chart."
+    cmds:
+      - |
+        helm upgrade --install pg . \
+          --namespace {{.NAMESPACE}} \
+          -f values.yaml \
+          --wait
+
+  uninstall-pg:
+    desc: "Uninstall postgresql chart."
+    cmds:
+      - helm uninstall pg --namespace {{.NAMESPACE}}

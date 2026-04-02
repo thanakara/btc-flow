@@ -1,14 +1,14 @@
 {{/*
 chartName:
 */}}
-{{- define "flowchart.name" -}}
+{{- define "postgre.name" -}}
 {{- .Chart.Name -}}
 {{- end }}
 
 {{/*
 fullName: [RELEASE]-[CHART]
 */}}
-{{- define "flowchart.fullname" -}}
+{{- define "postgre.fullname" -}}
 {{- printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" -}}
 {{- end }}
 
@@ -16,9 +16,9 @@ fullName: [RELEASE]-[CHART]
 {{/*
 commonLabels:
 */}}
-{{- define "flowchart.labels" -}}
+{{- define "postgre.labels" -}}
 helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-app.kubernetes.io/name: {{ include "flowchart.name" . }}
+app.kubernetes.io/name: {{ include "postgre.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -27,7 +27,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 selectorLabels:
 */}}
-{{- define "flowchart.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "flowchart.name" . }}
+{{- define "postgre.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "postgre.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}

@@ -1,0 +1,73 @@
+version: "3"
+
+dotenv: ["../../.env"]
+
+vars:
+  NAMESPACE: afns
+  PG_NAMESPACE: pgns
+
+tasks:
+  create-namespace:
+    desc: "Create namespace if it doesn't exist."
+    cmds:
+      - kubectl create namespace {{.NAMESPACE}} --dry-run=client -o yaml | kubectl apply -f -
+
+  create-secrets:
+    desc: "Generate secrets.yaml — run once then gitignore."
+    cmds:
+      - |
+        kubectl create secret generic secrets \
+          --namespace {{.NAMESPACE}} \
+          --from-literal=fernet-key="${FERNET_KEY}" \
+          --from-literal=webserver-secret-key="${SECRET_KEY}" \
+          --from-literal=jwt-secret="${JWT_SECRET}" \
+          --dry-run=client -o yaml > secrets.yaml
+
+  create-pg-credentials:
+    desc: "Create separate secret for postgres in {{.NAMESPACE}}"
+    cmds:
+      - |
+        kubectl get secret secrets --namespace {{.PG_NAMESPACE}} -o yaml | \
+        sed 's/namespace: pgns/namespace: afns/' | \
+        sed 's/name: secrets/name: pg-credentials/' | \
+        kubectl apply -f -
+
+  apply-secrets:
+    deps: [create-namespace]
+    desc: "Apply airflow-secrets to the cluster."
+    cmds:
+      - kubectl apply -f secrets.yaml --namespace {{.NAMESPACE}}
+
+  preview-templates:
+    deps: [apply-secrets]
+    desc: "Render helm templates into './rendered.yaml' for inspection."
+    cmds:
+      - |
+        helm template airflow apache-airflow/airflow \
+          -f values.yaml \
+          > rendered.yaml
+
+  install-airflow:
+    deps: [apply-secrets, create-pg-credentials]
+    desc: "Install airflow via helm repo."
+    cmds:
+      - |
+        helm upgrade --install airflow apache-airflow/airflow \
+          --namespace {{.NAMESPACE}} \
+          -f values.yaml \
+          --timeout 10m \
+          --wait
+
+  upgrade-airflow:
+    desc: "Upgrade the release - Add pg-credentials."
+    cmds:
+      - |
+        helm upgrade airflow apache-airflow/airflow \
+        --namespace {{.NAMESPACE}} \
+        -f values.yaml \
+        --wait
+
+  uninstall-airflow:
+    desc: "Uninstall airflow."
+    cmds:
+      - helm uninstall airflow --namespace {{.NAMESPACE}}

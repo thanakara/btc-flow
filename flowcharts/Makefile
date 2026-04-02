@@ -4,7 +4,9 @@ CONFIG			:= kind-config.yaml
 CLUSTER_NAME	:= btcflow
 
 .PHONY: help \
-		generate-config
+		generate-config \
+		create-cluster \
+		delete-cluster
 
 help:
 	@echo "-------------------------------+"
