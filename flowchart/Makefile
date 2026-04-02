@@ -1,7 +1,7 @@
 .DEFAULT_GOAL: help
 
 CONFIG			:= kind-config.yaml
-CLUSTER_NAME	:= flow-cluster
+CLUSTER_NAME	:= btcflow
 
 .PHONY: help \
 		generate-config

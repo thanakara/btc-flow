@@ -1,36 +1,55 @@
 version: "3"
 
+dotenv: ["../.env"]
+
 vars:
-  NAMESPACE: flow-domain
-  CHART_NAME: flowchart
-  RELEASE_NAME: btcflow
+  NAMESPACE: afns
+  RELEASE_NAME: af
 
 tasks:
   create-namespace:
-    desc: "Create a namespace for the chart"
+    desc: "Create namespace if it doesn't exist."
     cmds:
-      - kubectl apply -f namespace.yaml
-      - kubens {{ .NAMESPACE}}
+      - kubectl create namespace {{.NAMESPACE}} --dry-run=client -o yaml | kubectl apply -f -
 
-  delete-namespace:
-    desc: "Delete namespace and all its resources"
-    cmds:
-      - kubectl delete -f namespace.yaml
-      - kubens default
-
-  lint:
-    cmds:
-      - helm lint .
-
-  render:
+  create-secrets:
+    desc: "Generate af-secrets.yaml — run once then gitignore."
     cmds:
       - |
-        if [ -z {{ .STEM | default "" }} ]; then
-          helm template .
-        else
-          helm template . --show-only "templates/{{ .STEM | default}}.yaml"
-        fi
+        kubectl create secret generic af-secrets \
+          --namespace {{.NAMESPACE}} \
+          --from-literal=fernet-key="${FERNET_KEY}" \
+          --from-literal=webserver-secret-key="${SECRET_KEY}" \
+          --from-literal=jwt-secret="${JWT_SECRET}" \
+          --dry-run=client -o yaml > af-secrets.yaml
 
-  install:
+  apply-secrets:
+    deps: [create-namespace]
+    desc: "Apply airflow-secrets to the cluster."
     cmds:
-      - helm install {{ .RELEASE_NAME}} . --namespace {{ .NAMESPACE}}
+      - kubectl apply -f af-secrets.yaml --namespace {{.NAMESPACE}}
+
+  preview-templates:
+    deps: [apply-secrets]
+    desc: "Render helm templates into './rendered.yaml' for inspection."
+    cmds:
+      - |
+        helm template {{.RELEASE_NAME}} apache-airflow/airflow \
+          -f af.values.yaml \
+          > rendered.yaml
+
+  install-airflow:
+    deps: [apply-secrets]
+    desc: "Install airflow via helm repo."
+    cmds:
+      - |
+        helm upgrade --install {{.RELEASE_NAME}} apache-airflow/airflow \
+          --namespace {{.NAMESPACE}} \
+          -f af.values.yaml \
+          --timeout 10m \
+          --wait
+
+  uninstall-airflow:
+    desc: "Uninstall airflow."
+    cmds:
+      - helm uninstall {{.RELEASE_NAME}} --namespace {{.NAMESPACE}}
