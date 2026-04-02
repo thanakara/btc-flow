@@ -1,0 +1,84 @@
+images:
+  airflow:
+    repository: thanakara/btc-flow
+    tag: airflow-v0.1.0
+    pullPolicy: IfNotPresent
+
+# LocalExecutor: no celery/redis needed
+executor: LocalExecutor
+
+# not needed with LocalExecutor
+redis:
+  enabled: false
+
+flower:
+  enabled: false
+
+# disabled: not using deferrable operators
+triggerer:
+  enabled: false
+
+# disabled: not needed for dev
+statsd:
+  enabled: false
+
+# built-in postgres for metadata
+postgresql:
+  enabled: true
+
+fernetKeySecretName: secrets
+webserverSecretKeySecretName: secrets
+jwtSecretName: secrets
+
+migrateDatabaseJob:
+  enabled: true
+  useHelmHooks: false
+
+createUserJob:
+  enabled: false
+  useHelmHooks: false
+
+scheduler:
+  logGroomerSidecar:
+    enabled: False
+
+dagProcessor:
+  logGroomerSidecar:
+    enabled: false
+
+# simple_auth_manager: same as docker-setup
+config:
+  core:
+    auth_manager: "airflow.api_fastapi.auth.managers.simple.simple_auth_manager.SimpleAuthManager"
+    simple_auth_manager_all_admins: "True"
+    load_examples: "False"
+
+# gitSync: pull dags from repo - no volume mounts in kubernetes
+dags:
+  gitSync:
+    enabled: true
+    repo: https://github.com/thanakara/btc-flow.git
+    branch: main
+    subPath: dags
+    period: 60s
+    recommendedProbeSetting: true # false: depricated
+
+# etl-postgres connection for dags: update-chart after
+extraEnv: |
+  - name: BTCFLOW_POSTGRES_HOST
+    value: "pgch-pgsvc.pgns.svc.cluster.local"
+  - name: BTCFLOW_POSTGRES_DB
+    valueFrom:
+      secretKeyRef:
+        name: pg-credentials
+        key: POSTGRES_DB
+  - name: BTCFLOW_POSTGRES_USER
+    valueFrom:
+      secretKeyRef:
+        name: pg-credentials
+        key: POSTGRES_USER
+  - name: BTCFLOW_POSTGRES_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: pg-credentials
+        key: POSTGRES_PASSWORD

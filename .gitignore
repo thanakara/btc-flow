@@ -7,6 +7,7 @@ wheels/
 
 # /**⸺ Virtual enviroments & ENV ⸺⸺⸺*/
 .venv
+.devbox
 .env
 
 # /**⸺ cache ⸺⸺⸺⸺⸺⸺⸺⸺*/

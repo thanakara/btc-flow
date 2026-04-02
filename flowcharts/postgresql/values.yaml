@@ -1,0 +1,16 @@
+namespace: pgns
+
+secret:
+  name: secrets
+
+svc:
+  name: pgch-pgsvc
+  type: ClusterIP
+  port: 5432
+
+sts:
+  name: pgch-pgsts
+  replicas: 1
+  image: postgres:15-alpine
+  pullPolicy: IfNotPresent
+  storage: 1Gi

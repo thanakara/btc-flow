@@ -5,7 +5,7 @@ TAG	:= $(shell git describe --tags --abbrev=0)
 
 .PHONY: help \
 		latest \
-		remove-cache \
+		rm-cache \
 		test-suite \
 		pre-commit \
 		docker-container-prune
@@ -13,12 +13,12 @@ TAG	:= $(shell git describe --tags --abbrev=0)
 
 
 help:
-	@echo "--------------------------+"
-	@echo "|remove-cache             |"
-	@echo "|test-suite               |"
-	@echo "|pre-commit               |"
-	@echo "|docker-container-prune   |"
-	@echo "--------------------------+"
+	@echo "-------------------------------+"
+	@echo "|[UTIL] rm-cache               |"
+	@echo "|[UTIL] docker-container-prune |"
+	@echo "|[TEST] test-suite             |"
+	@echo "|[TEST] pre-commit             |"
+	@echo "-------------------------------+"
 
 latest:
 	@echo ""
@@ -26,7 +26,7 @@ latest:
 	@echo "TAG: $(TAG)"
 	@echo ""
 
-remove-cache:
+rm-cache:
 	@echo "Ponding while removing..."
 	@find . -type d -name "__pycache__" | xargs rm -rf 2>/dev/null || true
 	@find . -type d -name ".ruff_cache" | xargs rm -rf 2>/dev/null || true
