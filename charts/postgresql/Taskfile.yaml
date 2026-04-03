@@ -27,7 +27,6 @@ tasks:
     desc: "Apply secrets to the cluster."
     cmds:
       - kubectl apply -f secrets.yaml
-      # - kubectl apply -f secrets.yaml -namespace {{.NAMESPACE}}
 
   render:
     desc: "Render helm templates into './rendered.yaml' for inspection."

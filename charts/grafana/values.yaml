@@ -1,0 +1,17 @@
+namespace: gfns
+
+secrets:
+  name: secrets
+
+svc:
+  name: gfch-gfsvc
+  type: ClusterIP
+  port: 3000
+
+sts:
+  name: gfch-gfsts
+  replicas: 1
+  image: grafana/grafana:11.4.0 # supp pg-plugin
+  pullPolicy: IfNotPresent
+  storage: 1Gi
+  storageClassName: standard
