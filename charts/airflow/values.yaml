@@ -1,7 +1,7 @@
 images:
   airflow:
     repository: thanakara/btc-flow
-    tag: airflow-v0.1.0
+    tag: airflow-v0.2.1 # TODO: on.tag - bump
     pullPolicy: IfNotPresent
 
 # LocalExecutor: no celery/redis needed
